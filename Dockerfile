@@ -22,13 +22,18 @@ RUN apt update && \
 
 WORKDIR /workspace
 
-# Инсталиране на Python зависимости
+# Python зависимости
 RUN pip install --upgrade pip && \
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124 && \
     pip install diffusers transformers accelerate opencv-python runpod
 
-# Клонираме InstantID без LFS
+# Клониране на InstantID (без LFS)
 RUN git clone https://github.com/InstantX/InstantID.git || true
+
+# Пренасочване на кеш към volume
+ENV HF_HOME=/runpod-volume/.cache/huggingface
+ENV TRANSFORMERS_CACHE=$HF_HOME
+ENV DIFFUSERS_CACHE=$HF_HOME
 
 # Копиране на скриптове
 COPY --chmod=755 handler.py /workspace/InstantID/handler.py
